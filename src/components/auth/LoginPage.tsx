@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Shield, AlertCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { TwoFactorLogin } from './TwoFactorLogin';
 
 export const LoginPage: React.FC = () => {
-  const { signIn } = useAuth();
+  const { signIn, requires2FA, pendingUser, complete2FALogin, cancel2FALogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,6 +25,16 @@ export const LoginPage: React.FC = () => {
 
     setLoading(false);
   };
+
+  if (requires2FA && pendingUser) {
+    return (
+      <TwoFactorLogin
+        onVerified={complete2FALogin}
+        onCancel={cancel2FALogin}
+        userEmail={pendingUser.email || ''}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center p-6">

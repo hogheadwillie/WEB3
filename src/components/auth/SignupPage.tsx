@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Mail, Lock, Shield, AlertCircle, CheckCircle } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { TwoFactorSetup } from './TwoFactorSetup';
 
 export const SignupPage: React.FC = () => {
   const { signUp } = useAuth();
@@ -12,6 +13,7 @@ export const SignupPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showTwoFactorSetup, setShowTwoFactorSetup] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +37,7 @@ export const SignupPage: React.FC = () => {
     if (signUpError) {
       setError(signUpError.message);
     } else {
-      setSuccess(true);
+      setShowTwoFactorSetup(true);
     }
 
     setLoading(false);
@@ -65,6 +67,27 @@ export const SignupPage: React.FC = () => {
             Sign In Now
           </Link>
         </motion.div>
+      </div>
+    );
+  }
+
+  if (showTwoFactorSetup) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 py-12">
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-4">
+              Secure Your Account
+            </h1>
+            <p className="text-gray-400">
+              Set up two-factor authentication to protect your QuantumSecure account
+            </p>
+          </div>
+          <TwoFactorSetup
+            onComplete={() => setSuccess(true)}
+            onCancel={() => setSuccess(true)}
+          />
+        </div>
       </div>
     );
   }
