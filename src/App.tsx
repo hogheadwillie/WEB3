@@ -12,6 +12,7 @@ import { SecurityTestingDashboard } from './components/SecurityTestingDashboard'
 import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
 import { UserProfile } from './components/UserProfile';
 import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
@@ -33,6 +34,7 @@ const Dashboard: React.FC = () => {
     { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
     { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
   ];
