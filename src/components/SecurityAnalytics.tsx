@@ -17,8 +17,9 @@ import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
+import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User } from 'lucide-react';
 
 type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
@@ -36,37 +37,36 @@ const Dashboard: React.FC = () => {
     { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
-    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: User },
   ];
 
   return (
-    <main className="container mx-auto px-6 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
+    <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
           Quantum Security Operations Center
         </h1>
-        <p className="text-gray-400">
+        <p className="text-gray-400 text-sm sm:text-base">
           Advanced Web3 security platform with quantum encryption and real-time threat analysis
         </p>
       </div>
 
-      <div className="mb-8">
-        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+      <div className="mb-6 sm:mb-8">
+        <nav className="flex overflow-x-auto space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50 scrollbar-hide">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                className={`flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 sm:py-3 rounded-lg transition-all duration-200 whitespace-nowrap ${
                   activeTab === tab.id
                     ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
                     : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
                 }`}
               >
-                <Icon className="h-5 w-5" />
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+                <span className="font-medium text-xs sm:text-sm lg:text-base">{tab.name}</span>
               </button>
             );
           })}
@@ -138,7 +138,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 function App() {
-  const { loading } = useAuth();
+  const { user, loading, requires2FA, pendingUser, complete2FALogin, cancel2FALogin } = useAuth();
 
   if (loading) {
     return (
@@ -151,11 +151,21 @@ function App() {
     );
   }
 
+  if (requires2FA && pendingUser) {
+    return (
+      <TwoFactorLogin
+        onVerified={complete2FALogin}
+        onCancel={cancel2FALogin}
+        userEmail={pendingUser.email || ''}
+      />
+    );
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
+        <Route path="/signup" element={user ? <Navigate to="/" replace /> : <SignupPage />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route
           path="/"
