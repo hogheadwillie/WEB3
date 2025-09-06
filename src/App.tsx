@@ -11,6 +11,7 @@ import { CloudflareMonitor } from './components/CloudflareMonitor';
 import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
 import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
 import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
 import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
@@ -20,7 +21,7 @@ import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
 import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User } from 'lucide-react';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'enterprise' | 'signup' | 'profile';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
@@ -35,10 +36,12 @@ const Dashboard: React.FC = () => {
     { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
     { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: User },
   ];
 
   return (
+        <Route path="/pricing" element={<PricingPage />} />
     <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
@@ -167,19 +170,11 @@ function App() {
         <Route path="/success" element={<SuccessPage />} />
         <Route
           path="/"
-          element={
+          element={user ? (
             <AppLayout>
               <Dashboard />
             </AppLayout>
-          }
-        />
-        <Route
-          path="/pricing"
-          element={
-            <AppLayout>
-              <PricingPage />
-            </AppLayout>
-          }
+          ) : <Navigate to="/signup" replace />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
