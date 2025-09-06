@@ -115,3 +115,57 @@ export interface MainframeJob {
   cpu: number;
   memory: number;
 }
+
+export interface SecurityIncident {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  status: 'open' | 'investigating' | 'resolved' | 'closed';
+  category: 'malware' | 'phishing' | 'ddos' | 'breach' | 'vulnerability' | 'unauthorized_access' | 'data_leak' | 'system_failure' | 'other';
+  source?: string;
+  affected_systems: string[];
+  assigned_to?: string;
+  reported_by: string;
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
+  resolution_notes?: string;
+  impact_assessment?: string;
+  mitigation_steps: string[];
+  evidence_urls: string[];
+  tags: string[];
+}
+
+export interface IncidentComment {
+  id: string;
+  incident_id: string;
+  user_id: string;
+  comment: string;
+  is_internal: boolean;
+  created_at: string;
+  user_email?: string;
+}
+
+export interface IncidentAttachment {
+  id: string;
+  incident_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  file_size: number;
+  uploaded_by: string;
+  created_at: string;
+}
+
+export interface IncidentStats {
+  total: number;
+  open: number;
+  investigating: number;
+  resolved: number;
+  closed: number;
+  critical: number;
+  high: number;
+  medium: number;
+  low: number;
+}
