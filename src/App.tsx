@@ -11,6 +11,7 @@ import { CloudflareMonitor } from './components/CloudflareMonitor';
 import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
 import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
 import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
@@ -33,8 +34,10 @@ const Dashboard: React.FC = () => {
     { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
   ];
 
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
     { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: BarChart3 },
   return (
     <main className="container mx-auto px-6 py-8">
@@ -84,7 +87,6 @@ const Dashboard: React.FC = () => {
         {activeTab === 'incidents' && <IncidentReportingDashboard />}
         {activeTab === 'signup' && <UserSignup />}
       </motion.div>
-        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
     </main>
   );
 };
