@@ -59,6 +59,52 @@ export interface CloudflareMetrics {
   countries: string[];
 }
 
+export interface SecurityTest {
+  id: string;
+  name: string;
+  type: 'penetration' | 'vulnerability' | 'load' | 'ddos' | 'injection' | 'xss';
+  status: 'running' | 'completed' | 'failed' | 'queued';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  startTime: number;
+  duration: number;
+  progress: number;
+  findings: SecurityFinding[];
+  target: string;
+}
+
+export interface SecurityFinding {
+  id: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  recommendation: string;
+  cve?: string;
+  cvss?: number;
+}
+
+export interface StressTestMetrics {
+  timestamp: number;
+  concurrentUsers: number;
+  requestsPerSecond: number;
+  responseTime: number;
+  errorRate: number;
+  cpuUsage: number;
+  memoryUsage: number;
+  networkThroughput: number;
+}
+
+export interface VulnerabilityReport {
+  id: string;
+  timestamp: number;
+  totalVulnerabilities: number;
+  criticalCount: number;
+  highCount: number;
+  mediumCount: number;
+  lowCount: number;
+  riskScore: number;
+  complianceStatus: 'compliant' | 'non-compliant' | 'partial';
+}
+
 export interface MainframeJob {
   id: string;
   name: string;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Shield, Activity, Zap } from 'lucide-react';
 
 export const SecurityAnalytics: React.FC = () => {
   const threatData = [
@@ -24,8 +24,93 @@ export const SecurityAnalytics: React.FC = () => {
   const riskLevel = 'Medium';
   const riskColor = riskLevel === 'High' ? 'text-red-400' : riskLevel === 'Medium' ? 'text-yellow-400' : 'text-green-400';
 
+  // Real-time security metrics simulation
+  const [realTimeMetrics, setRealTimeMetrics] = React.useState({
+    activeConnections: 1247,
+    blockedAttacks: 89,
+    quantumKeyStrength: 98.7,
+    systemIntegrity: 99.2
+  });
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setRealTimeMetrics(prev => ({
+        activeConnections: prev.activeConnections + Math.floor(Math.random() * 20) - 10,
+        blockedAttacks: prev.blockedAttacks + Math.floor(Math.random() * 5),
+        quantumKeyStrength: Math.max(95, Math.min(100, prev.quantumKeyStrength + (Math.random() - 0.5) * 2)),
+        systemIntegrity: Math.max(95, Math.min(100, prev.systemIntegrity + (Math.random() - 0.5) * 1))
+      }));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="space-y-6">
+      {/* Real-time Security Status */}
+      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-cyan-500/20 p-6">
+        <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
+          <Shield className="h-6 w-6 text-cyan-400" />
+          <span>Real-time Security Status</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <motion.div
+            className="bg-gray-900/50 rounded-lg p-4 border border-blue-500/20"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Active Connections</p>
+                <p className="text-2xl font-bold text-blue-400">{realTimeMetrics.activeConnections.toLocaleString()}</p>
+              </div>
+              <Activity className="h-8 w-8 text-blue-400" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="bg-gray-900/50 rounded-lg p-4 border border-red-500/20"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Blocked Attacks</p>
+                <p className="text-2xl font-bold text-red-400">{realTimeMetrics.blockedAttacks}</p>
+              </div>
+              <Shield className="h-8 w-8 text-red-400" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="bg-gray-900/50 rounded-lg p-4 border border-purple-500/20"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">Quantum Key Strength</p>
+                <p className="text-2xl font-bold text-purple-400">{realTimeMetrics.quantumKeyStrength.toFixed(1)}%</p>
+              </div>
+              <Zap className="h-8 w-8 text-purple-400" />
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20"
+            animate={{ scale: [1, 1.02, 1] }}
+            transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-400">System Integrity</p>
+                <p className="text-2xl font-bold text-green-400">{realTimeMetrics.systemIntegrity.toFixed(1)}%</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-400" />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <motion.div
           className="bg-gray-800/50 rounded-lg p-4 border border-red-500/20"

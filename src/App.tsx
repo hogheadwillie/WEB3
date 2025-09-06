@@ -8,14 +8,15 @@ import { UserSignup } from './components/UserSignup';
 import { SecurityAnalytics } from './components/SecurityAnalytics';
 import { MainframeMonitor } from './components/MainframeMonitor';
 import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube } from 'lucide-react';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'signup';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'signup';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
@@ -26,6 +27,7 @@ const Dashboard: React.FC = () => {
     { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
     { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
     { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
   ];
 
@@ -73,6 +75,7 @@ const Dashboard: React.FC = () => {
         {activeTab === 'network' && <NetworkMonitor />}
         {activeTab === 'mainframe' && <MainframeMonitor />}
         {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
         {activeTab === 'signup' && <UserSignup />}
       </motion.div>
     </main>

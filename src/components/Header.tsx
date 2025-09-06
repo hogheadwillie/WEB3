@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Wifi, Key, User, Server, Cloud } from 'lucide-react';
+import { Shield, Wifi, Key, User, Server, Cloud, TestTube } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
 import { Link } from 'react-router-dom';
@@ -39,6 +39,10 @@ export const Header: React.FC = () => {
             <div className="flex items-center space-x-2 text-gray-300">
               <Cloud className="h-4 w-4" />
               <span>Cloudflare</span>
+            </div>
+            <div className="flex items-center space-x-2 text-gray-300">
+              <TestTube className="h-4 w-4" />
+              <span>Security Testing</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-300">
               <User className="h-4 w-4" />
