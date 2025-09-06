@@ -1,0 +1,29 @@
+# Cloudflare Workers configuration for edge functions
+name = "quantumsecure-worker"
+main = "src/worker.js"
+compatibility_date = "2024-01-01"
+
+[env.production]
+name = "quantumsecure-worker-prod"
+
+[env.staging]
+name = "quantumsecure-worker-staging"
+
+# KV namespaces for caching
+[[kv_namespaces]]
+binding = "CACHE"
+id = "your-kv-namespace-id"
+preview_id = "your-preview-kv-namespace-id"
+
+# Environment variables (set these in Cloudflare dashboard)
+[vars]
+ENVIRONMENT = "production"
+
+# Durable Objects for real-time features
+[[durable_objects.bindings]]
+name = "QUANTUM_STATE"
+class_name = "QuantumState"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["QuantumState"]

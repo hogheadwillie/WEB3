@@ -32,3 +32,40 @@ export interface User {
   plan: 'free' | 'pro' | 'enterprise';
   createdAt: number;
 }
+
+export interface MainframeConnection {
+  id: string;
+  name: string;
+  host: string;
+  port: number;
+  status: 'connected' | 'disconnected' | 'error' | 'connecting';
+  lastHeartbeat: number;
+  cpu: number;
+  memory: number;
+  storage: number;
+  activeJobs: number;
+  region: string;
+  version: string;
+}
+
+export interface CloudflareMetrics {
+  timestamp: number;
+  requests: number;
+  bandwidth: number;
+  threats: number;
+  cacheHitRatio: number;
+  responseTime: number;
+  uniqueVisitors: number;
+  countries: string[];
+}
+
+export interface MainframeJob {
+  id: string;
+  name: string;
+  status: 'running' | 'completed' | 'failed' | 'queued';
+  priority: number;
+  startTime: number;
+  duration: number;
+  cpu: number;
+  memory: number;
+}
