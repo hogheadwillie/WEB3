@@ -1,110 +1,182 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Key, Zap, Shield, Activity } from 'lucide-react';
-import { useQuantumSimulation } from '../hooks/useQuantumSimulation';
+import { Header } from './components/Header';
+import { QuantumDashboard } from './components/QuantumDashboard';
+import { NetworkMonitor } from './components/NetworkMonitor';
+import { UserSignup } from './components/UserSignup';
+import { SecurityAnalytics } from './components/SecurityAnalytics';
+import { MainframeMonitor } from './components/MainframeMonitor';
+import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
+import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
+import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
+import { LoginPage } from './components/auth/LoginPage';
+import { SignupPage } from './components/auth/SignupPage';
+import { PricingPage } from './components/PricingPage';
+import { SuccessPage } from './components/SuccessPage';
+import { useAuth } from './hooks/useAuth';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-export const QuantumDashboard: React.FC = () => {
-  const {
-    quantumKeys,
-    isGenerating,
-    entanglementStrength,
-    startKeyGeneration,
-    stopKeyGeneration,
-  } = useQuantumSimulation();
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
-  const latestKey = quantumKeys[quantumKeys.length - 1];
+const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('analytics');
+
+  const tabs = [
+    { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
+    { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
+    { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
+    { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
+    { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
+    { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+  ];
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-purple-500/20 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-purple-500/20 rounded-lg">
-            <Key className="h-6 w-6 text-purple-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-white">Quantum Key Distribution</h2>
-        </div>
-        <button
-          onClick={isGenerating ? stopKeyGeneration : startKeyGeneration}
-          className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-            isGenerating
-              ? 'bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30'
-              : 'bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30'
-          }`}
-        >
-          {isGenerating ? 'Stop Generation' : 'Start Generation'}
-        </button>
+    <main className="container mx-auto px-6 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Quantum Security Operations Center
+        </h1>
+        <p className="text-gray-400">
+          Advanced Web3 security platform with quantum encryption and real-time threat analysis
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-cyan-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Zap className="h-5 w-5 text-cyan-400" />
-            <span className="text-sm text-gray-300">Entanglement Strength</span>
-          </div>
-          <div className="text-2xl font-bold text-cyan-400">
-            {(entanglementStrength * 100).toFixed(1)}%
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-2 mt-2">
-            <motion.div
-              className="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${entanglementStrength * 100}%` }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
-        </div>
-
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Shield className="h-5 w-5 text-green-400" />
-            <span className="text-sm text-gray-300">Keys Generated</span>
-          </div>
-          <div className="text-2xl font-bold text-green-400">{quantumKeys.length}</div>
-        </div>
-
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-yellow-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Activity className="h-5 w-5 text-yellow-400" />
-            <span className="text-sm text-gray-300">Fidelity</span>
-          </div>
-          <div className="text-2xl font-bold text-yellow-400">
-            {latestKey ? `${(latestKey.fidelity * 100).toFixed(1)}%` : 'N/A'}
-          </div>
-        </div>
+      <div className="mb-8">
+        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
-      {latestKey && (
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-purple-500/20">
-          <h3 className="text-lg font-semibold text-white mb-3">Latest Quantum Key</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-gray-400">Key ID:</span>
-              <span className="text-purple-400 font-mono">{latestKey.id}</span>
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum' && <QuantumDashboard />}
+        {activeTab === 'network' && <NetworkMonitor />}
+        {activeTab === 'mainframe' && <MainframeMonitor />}
+        {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
+        {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
+        {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
+      </motion.div>
+    </main>
+  );
+};
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <Header />
+      {children}
+
+      <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
+              <p className="text-gray-400 text-sm">
+                Next-generation Web3 security platform with quantum encryption and AI-powered threat detection.
+              </p>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Timestamp:</span>
-              <span className="text-gray-300">{new Date(latestKey.timestamp).toLocaleTimeString()}</span>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• Quantum Key Distribution</li>
+                <li>• Real-time Network Monitoring</li>
+                <li>• Advanced Threat Analytics</li>
+                <li>• Web3 Wallet Integration</li>
+              </ul>
             </div>
-            <div className="mt-3">
-              <span className="text-gray-400">Key Bits (first 64):</span>
-              <div className="mt-1 p-2 bg-gray-800 rounded font-mono text-xs text-green-400 break-all">
-                {latestKey.bits.slice(0, 64)}...
-              </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Security</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• End-to-end Encryption</li>
+                <li>• Zero-trust Architecture</li>
+                <li>• Cloudflare Protection</li>
+                <li>• SOC 2 Compliance</li>
+              </ul>
             </div>
           </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 QuantumSecure. All rights reserved. Built with quantum-grade security.
+          </div>
         </div>
-      )}
-
-      {isGenerating && (
-        <div className="mt-4 flex items-center space-x-2 text-purple-400">
-          <motion.div
-            className="w-2 h-2 bg-purple-400 rounded-full"
-            animate={{ scale: [1, 1.5, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-          <span className="text-sm">Generating quantum-entangled keys...</span>
-        </div>
-      )}
+      </footer>
     </div>
   );
 };
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <AppLayout>
+              <PricingPage />
+            </AppLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

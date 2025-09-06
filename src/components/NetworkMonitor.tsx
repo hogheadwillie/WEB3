@@ -1,139 +1,182 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Activity, AlertTriangle, Shield, Wifi } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useNetworkMonitoring } from '../hooks/useNetworkMonitoring';
+import { Header } from './components/Header';
+import { QuantumDashboard } from './components/QuantumDashboard';
+import { NetworkMonitor } from './components/NetworkMonitor';
+import { UserSignup } from './components/UserSignup';
+import { SecurityAnalytics } from './components/SecurityAnalytics';
+import { MainframeMonitor } from './components/MainframeMonitor';
+import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
+import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
+import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
+import { LoginPage } from './components/auth/LoginPage';
+import { SignupPage } from './components/auth/SignupPage';
+import { PricingPage } from './components/PricingPage';
+import { SuccessPage } from './components/SuccessPage';
+import { useAuth } from './hooks/useAuth';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-export const NetworkMonitor: React.FC = () => {
-  const { packets, metrics, isMonitoring, threatsDetected, startMonitoring, stopMonitoring } = useNetworkMonitoring();
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
-  const recentPackets = packets.slice(-10);
-  const chartData = metrics.map(metric => ({
-    time: new Date(metric.timestamp).toLocaleTimeString(),
-    threats: metric.threatsBlocked,
-    packets: metric.packetsAnalyzed / 100,
-  }));
+const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('analytics');
+
+  const tabs = [
+    { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
+    { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
+    { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
+    { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
+    { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
+    { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+  ];
 
   return (
-    <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-cyan-500/20 p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="p-2 bg-cyan-500/20 rounded-lg">
-            <Activity className="h-6 w-6 text-cyan-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-white">Network Security Monitor</h2>
-        </div>
-        <button
-          onClick={isMonitoring ? stopMonitoring : startMonitoring}
-          className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-            isMonitoring
-              ? 'bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30'
-              : 'bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30'
-          }`}
-        >
-          {isMonitoring ? 'Stop Monitoring' : 'Start Monitoring'}
-        </button>
+    <main className="container mx-auto px-6 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Quantum Security Operations Center
+        </h1>
+        <p className="text-gray-400">
+          Advanced Web3 security platform with quantum encryption and real-time threat analysis
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-red-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <AlertTriangle className="h-5 w-5 text-red-400" />
-            <span className="text-sm text-gray-300">Threats Detected</span>
-          </div>
-          <div className="text-2xl font-bold text-red-400">{threatsDetected}</div>
-        </div>
-
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Shield className="h-5 w-5 text-green-400" />
-            <span className="text-sm text-gray-300">Packets Analyzed</span>
-          </div>
-          <div className="text-2xl font-bold text-green-400">{packets.length}</div>
-        </div>
-
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-blue-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Wifi className="h-5 w-5 text-blue-400" />
-            <span className="text-sm text-gray-300">Encrypted</span>
-          </div>
-          <div className="text-2xl font-bold text-blue-400">
-            {packets.length ? Math.round((packets.filter(p => p.encrypted).length / packets.length) * 100) : 0}%
-          </div>
-        </div>
-
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-yellow-500/20">
-          <div className="flex items-center space-x-2 mb-2">
-            <Activity className="h-5 w-5 text-yellow-400" />
-            <span className="text-sm text-gray-300">Status</span>
-          </div>
-          <div className={`text-sm font-semibold ${isMonitoring ? 'text-green-400' : 'text-gray-400'}`}>
-            {isMonitoring ? 'Active' : 'Inactive'}
-          </div>
-        </div>
+      <div className="mb-8">
+        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
-      {chartData.length > 0 && (
-        <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600/20 mb-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Network Activity</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="time" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1F2937', 
-                    border: '1px solid #374151',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Line type="monotone" dataKey="threats" stroke="#EF4444" strokeWidth={2} />
-                <Line type="monotone" dataKey="packets" stroke="#06B6D4" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum' && <QuantumDashboard />}
+        {activeTab === 'network' && <NetworkMonitor />}
+        {activeTab === 'mainframe' && <MainframeMonitor />}
+        {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
+        {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
+        {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
+      </motion.div>
+    </main>
+  );
+};
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <Header />
+      {children}
+
+      <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
+              <p className="text-gray-400 text-sm">
+                Next-generation Web3 security platform with quantum encryption and AI-powered threat detection.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• Quantum Key Distribution</li>
+                <li>• Real-time Network Monitoring</li>
+                <li>• Advanced Threat Analytics</li>
+                <li>• Web3 Wallet Integration</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Security</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• End-to-end Encryption</li>
+                <li>• Zero-trust Architecture</li>
+                <li>• Cloudflare Protection</li>
+                <li>• SOC 2 Compliance</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 QuantumSecure. All rights reserved. Built with quantum-grade security.
           </div>
         </div>
-      )}
-
-      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-600/20">
-        <h3 className="text-lg font-semibold text-white mb-4">Live Packet Analysis</h3>
-        <div className="space-y-2 max-h-64 overflow-y-auto">
-          {recentPackets.map((packet) => (
-            <motion.div
-              key={packet.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className={`flex items-center justify-between p-3 rounded-lg border ${
-                packet.threatLevel === 'high'
-                  ? 'bg-red-500/10 border-red-500/30'
-                  : packet.threatLevel === 'medium'
-                  ? 'bg-yellow-500/10 border-yellow-500/30'
-                  : 'bg-green-500/10 border-green-500/30'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <div className={`w-2 h-2 rounded-full ${
-                  packet.threatLevel === 'high' ? 'bg-red-400' :
-                  packet.threatLevel === 'medium' ? 'bg-yellow-400' : 'bg-green-400'
-                }`} />
-                <div className="text-sm">
-                  <div className="text-white font-mono">
-                    {packet.source} → {packet.destination}
-                  </div>
-                  <div className="text-gray-400">
-                    {packet.protocol} • {packet.size} bytes • {packet.encrypted ? '🔒' : '🔓'}
-                  </div>
-                </div>
-              </div>
-              <div className="text-xs text-gray-400">
-                {new Date(packet.timestamp).toLocaleTimeString()}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+      </footer>
     </div>
   );
 };
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <AppLayout>
+              <PricingPage />
+            </AppLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

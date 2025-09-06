@@ -1,100 +1,182 @@
-import React from 'react';
-import { Shield, Wifi, Key, User, Server, Cloud, TestTube, AlertTriangle } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { useSubscription } from '../hooks/useSubscription';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Header } from './components/Header';
+import { QuantumDashboard } from './components/QuantumDashboard';
+import { NetworkMonitor } from './components/NetworkMonitor';
+import { UserSignup } from './components/UserSignup';
+import { SecurityAnalytics } from './components/SecurityAnalytics';
+import { MainframeMonitor } from './components/MainframeMonitor';
+import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
+import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
+import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
+import { LoginPage } from './components/auth/LoginPage';
+import { SignupPage } from './components/auth/SignupPage';
+import { PricingPage } from './components/PricingPage';
+import { SuccessPage } from './components/SuccessPage';
+import { useAuth } from './hooks/useAuth';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-export const Header: React.FC = () => {
-  const { user, signOut } = useAuth();
-  const { getActivePlan } = useSubscription();
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
+const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('analytics');
+
+  const tabs = [
+    { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
+    { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
+    { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
+    { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
+    { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
+    { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+  ];
 
   return (
-    <header className="bg-gray-900/95 backdrop-blur-sm border-b border-cyan-500/20">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Shield className="h-8 w-8 text-cyan-400" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              QuantumSecure
-            </h1>
-          </div>
-          
-          <nav className="hidden md:flex items-center space-x-8">
-            <div className="flex items-center space-x-2 text-gray-300">
-              <Wifi className="h-4 w-4" />
-              <span>Network Monitor</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <Key className="h-4 w-4" />
-              <span>Quantum Keys</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <Server className="h-4 w-4" />
-              <span>Mainframe</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <Cloud className="h-4 w-4" />
-              <span>Cloudflare</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <TestTube className="h-4 w-4" />
-              <span>Security Testing</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <AlertTriangle className="h-4 w-4" />
-              <span>Incidents</span>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-300">
-              <User className="h-4 w-4" />
-              <span>Analytics</span>
-            </div>
-          </nav>
-
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                {getActivePlan() && (
-                  <div className="px-3 py-1 bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 rounded-lg">
-                    <span className="text-purple-400 text-sm font-medium">
-                      {getActivePlan()}
-                    </span>
-                  </div>
-                )}
-                <div className="px-3 py-1 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-lg">
-                  <span className="text-green-400 text-sm font-medium">
-                    {user.email}
-                  </span>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  className="px-4 py-2 bg-red-500/20 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/30 transition-all duration-200"
-                >
-                  Sign Out
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link
-                  to="/login"
-                  className="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-purple-500 text-white rounded-lg hover:from-cyan-600 hover:to-purple-600 transition-all duration-200"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
+    <main className="container mx-auto px-6 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Quantum Security Operations Center
+        </h1>
+        <p className="text-gray-400">
+          Advanced Web3 security platform with quantum encryption and real-time threat analysis
+        </p>
       </div>
-    </header>
+
+      <div className="mb-8">
+        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum' && <QuantumDashboard />}
+        {activeTab === 'network' && <NetworkMonitor />}
+        {activeTab === 'mainframe' && <MainframeMonitor />}
+        {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
+        {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
+        {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
+      </motion.div>
+    </main>
   );
 };
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <Header />
+      {children}
+
+      <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
+              <p className="text-gray-400 text-sm">
+                Next-generation Web3 security platform with quantum encryption and AI-powered threat detection.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• Quantum Key Distribution</li>
+                <li>• Real-time Network Monitoring</li>
+                <li>• Advanced Threat Analytics</li>
+                <li>• Web3 Wallet Integration</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Security</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• End-to-end Encryption</li>
+                <li>• Zero-trust Architecture</li>
+                <li>• Cloudflare Protection</li>
+                <li>• SOC 2 Compliance</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 QuantumSecure. All rights reserved. Built with quantum-grade security.
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <AppLayout>
+              <PricingPage />
+            </AppLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

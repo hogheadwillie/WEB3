@@ -11,6 +11,7 @@ import { CloudflareMonitor } from './components/CloudflareMonitor';
 import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
 import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
 import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
 import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
@@ -19,7 +20,7 @@ import { SuccessPage } from './components/SuccessPage';
 import { useAuth } from './hooks/useAuth';
 import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
@@ -34,6 +35,7 @@ const Dashboard: React.FC = () => {
     { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
     { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
   ];
 
@@ -63,7 +65,8 @@ const Dashboard: React.FC = () => {
                 }`}
               >
                 <Icon className="h-5 w-5" />
-                <span className="font-medium">{tab.name}</span>
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
               </button>
             );
           })}
@@ -98,8 +101,8 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       {children}
 
       <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
-        <div className="container mx-auto px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             <div>
               <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
               <p className="text-gray-400 text-sm">

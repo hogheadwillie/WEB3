@@ -1,284 +1,182 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle, Shield, Activity, Zap } from 'lucide-react';
+import { Header } from './components/Header';
+import { QuantumDashboard } from './components/QuantumDashboard';
+import { NetworkMonitor } from './components/NetworkMonitor';
+import { UserSignup } from './components/UserSignup';
+import { SecurityAnalytics } from './components/SecurityAnalytics';
+import { MainframeMonitor } from './components/MainframeMonitor';
+import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
+import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
+import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
+import { LoginPage } from './components/auth/LoginPage';
+import { SignupPage } from './components/auth/SignupPage';
+import { PricingPage } from './components/PricingPage';
+import { SuccessPage } from './components/SuccessPage';
+import { useAuth } from './hooks/useAuth';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-export const SecurityAnalytics: React.FC = () => {
-  const threatData = [
-    { name: 'DDoS', count: 45, color: '#EF4444' },
-    { name: 'Malware', count: 32, color: '#F97316' },
-    { name: 'Phishing', count: 28, color: '#EAB308' },
-    { name: 'Brute Force', count: 21, color: '#8B5CF6' },
-    { name: 'SQL Injection', count: 15, color: '#06B6D4' },
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
+
+const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('analytics');
+
+  const tabs = [
+    { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
+    { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
+    { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
+    { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
+    { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
+    { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
   ];
 
-  const timelineData = [
-    { time: '00:00', incidents: 5 },
-    { time: '04:00', incidents: 12 },
-    { time: '08:00', incidents: 8 },
-    { time: '12:00', incidents: 15 },
-    { time: '16:00', incidents: 20 },
-    { time: '20:00', incidents: 18 },
-  ];
-
-  const riskLevel = 'Medium';
-  const riskColor = riskLevel === 'High' ? 'text-red-400' : riskLevel === 'Medium' ? 'text-yellow-400' : 'text-green-400';
-
-  // Real-time security metrics simulation
-  const [realTimeMetrics, setRealTimeMetrics] = React.useState({
-    activeConnections: 1247,
-    blockedAttacks: 89,
-    quantumKeyStrength: 98.7,
-    systemIntegrity: 99.2
-  });
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setRealTimeMetrics(prev => ({
-        activeConnections: prev.activeConnections + Math.floor(Math.random() * 20) - 10,
-        blockedAttacks: prev.blockedAttacks + Math.floor(Math.random() * 5),
-        quantumKeyStrength: Math.max(95, Math.min(100, prev.quantumKeyStrength + (Math.random() - 0.5) * 2)),
-        systemIntegrity: Math.max(95, Math.min(100, prev.systemIntegrity + (Math.random() - 0.5) * 1))
-      }));
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
   return (
-    <div className="space-y-6">
-      {/* Real-time Security Status */}
-      <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-cyan-500/20 p-6">
-        <h2 className="text-xl font-semibold text-white mb-4 flex items-center space-x-2">
-          <Shield className="h-6 w-6 text-cyan-400" />
-          <span>Real-time Security Status</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <motion.div
-            className="bg-gray-900/50 rounded-lg p-4 border border-blue-500/20"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Active Connections</p>
-                <p className="text-2xl font-bold text-blue-400">{realTimeMetrics.activeConnections.toLocaleString()}</p>
-              </div>
-              <Activity className="h-8 w-8 text-blue-400" />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="bg-gray-900/50 rounded-lg p-4 border border-red-500/20"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Blocked Attacks</p>
-                <p className="text-2xl font-bold text-red-400">{realTimeMetrics.blockedAttacks}</p>
-              </div>
-              <Shield className="h-8 w-8 text-red-400" />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="bg-gray-900/50 rounded-lg p-4 border border-purple-500/20"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">Quantum Key Strength</p>
-                <p className="text-2xl font-bold text-purple-400">{realTimeMetrics.quantumKeyStrength.toFixed(1)}%</p>
-              </div>
-              <Zap className="h-8 w-8 text-purple-400" />
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20"
-            animate={{ scale: [1, 1.02, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400">System Integrity</p>
-                <p className="text-2xl font-bold text-green-400">{realTimeMetrics.systemIntegrity.toFixed(1)}%</p>
-              </div>
-              <CheckCircle className="h-8 w-8 text-green-400" />
-            </div>
-          </motion.div>
-        </div>
+    <main className="container mx-auto px-6 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Quantum Security Operations Center
+        </h1>
+        <p className="text-gray-400">
+          Advanced Web3 security platform with quantum encryption and real-time threat analysis
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <motion.div
-          className="bg-gray-800/50 rounded-lg p-4 border border-red-500/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Critical Alerts</p>
-              <p className="text-2xl font-bold text-red-400">7</p>
-            </div>
-            <AlertCircle className="h-8 w-8 text-red-400" />
-          </div>
-          <div className="flex items-center space-x-1 mt-2">
-            <TrendingUp className="h-4 w-4 text-red-400" />
-            <span className="text-xs text-red-400">+15% from yesterday</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-gray-800/50 rounded-lg p-4 border border-green-500/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Threats Blocked</p>
-              <p className="text-2xl font-bold text-green-400">1,247</p>
-            </div>
-            <CheckCircle className="h-8 w-8 text-green-400" />
-          </div>
-          <div className="flex items-center space-x-1 mt-2">
-            <TrendingUp className="h-4 w-4 text-green-400" />
-            <span className="text-xs text-green-400">+8% from yesterday</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-gray-800/50 rounded-lg p-4 border border-blue-500/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Network Uptime</p>
-              <p className="text-2xl font-bold text-blue-400">99.98%</p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-blue-400" />
-          </div>
-          <div className="flex items-center space-x-1 mt-2">
-            <TrendingDown className="h-4 w-4 text-blue-400" />
-            <span className="text-xs text-blue-400">-0.01% from yesterday</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-gray-800/50 rounded-lg p-4 border border-yellow-500/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-400">Risk Level</p>
-              <p className={`text-2xl font-bold ${riskColor}`}>{riskLevel}</p>
-            </div>
-            <AlertCircle className={`h-8 w-8 ${riskColor}`} />
-          </div>
-          <div className="mt-2">
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-yellow-400 h-2 rounded-full" style={{ width: '60%' }} />
-            </div>
-          </div>
-        </motion.div>
+      <div className="mb-8">
+        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-800/50 rounded-xl border border-gray-600/20 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Threat Distribution</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={threatData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  dataKey="count"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {threatData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1F2937', 
-                    border: '1px solid #374151',
-                    borderRadius: '8px'
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum' && <QuantumDashboard />}
+        {activeTab === 'network' && <NetworkMonitor />}
+        {activeTab === 'mainframe' && <MainframeMonitor />}
+        {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
+        {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
+        {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
+      </motion.div>
+    </main>
+  );
+};
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <Header />
+      {children}
+
+      <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
+              <p className="text-gray-400 text-sm">
+                Next-generation Web3 security platform with quantum encryption and AI-powered threat detection.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• Quantum Key Distribution</li>
+                <li>• Real-time Network Monitoring</li>
+                <li>• Advanced Threat Analytics</li>
+                <li>• Web3 Wallet Integration</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Security</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• End-to-end Encryption</li>
+                <li>• Zero-trust Architecture</li>
+                <li>• Cloudflare Protection</li>
+                <li>• SOC 2 Compliance</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 QuantumSecure. All rights reserved. Built with quantum-grade security.
           </div>
         </div>
-
-        <div className="bg-gray-800/50 rounded-xl border border-gray-600/20 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Security Incidents Timeline</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={timelineData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="time" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1F2937', 
-                    border: '1px solid #374151',
-                    borderRadius: '8px'
-                  }}
-                />
-                <Bar dataKey="incidents" fill="#06B6D4" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gray-800/50 rounded-xl border border-gray-600/20 p-6">
-        <h3 className="text-lg font-semibold text-white mb-4">Recent Security Events</h3>
-        <div className="space-y-3">
-          {[
-            { type: 'DDoS Attack', severity: 'high', time: '2 minutes ago', description: 'Large-scale DDoS attack blocked from 192.168.1.100' },
-            { type: 'Malware Detected', severity: 'medium', time: '5 minutes ago', description: 'Trojan.Win32 detected and quarantined' },
-            { type: 'Failed Login', severity: 'low', time: '8 minutes ago', description: 'Multiple failed login attempts from unknown IP' },
-            { type: 'Firewall Rule', severity: 'low', time: '12 minutes ago', description: 'New firewall rule applied successfully' },
-          ].map((event, index) => (
-            <motion.div
-              key={index}
-              className={`p-4 rounded-lg border ${
-                event.severity === 'high' ? 'border-red-500/30 bg-red-500/10' :
-                event.severity === 'medium' ? 'border-yellow-500/30 bg-yellow-500/10' :
-                'border-green-500/30 bg-green-500/10'
-              }`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    event.severity === 'high' ? 'bg-red-400' :
-                    event.severity === 'medium' ? 'bg-yellow-400' : 'bg-green-400'
-                  }`} />
-                  <div>
-                    <p className="font-semibold text-white">{event.type}</p>
-                    <p className="text-sm text-gray-400">{event.description}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-gray-400">{event.time}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+      </footer>
     </div>
   );
 };
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <AppLayout>
+              <PricingPage />
+            </AppLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

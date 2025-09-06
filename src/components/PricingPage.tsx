@@ -1,214 +1,182 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Zap, AlertCircle } from 'lucide-react';
-import { STRIPE_PRODUCTS } from '../stripe-config';
-import { useAuth } from '../hooks/useAuth';
-import { useSubscription } from '../hooks/useSubscription';
-import { supabase } from '../lib/supabase';
+import { Header } from './components/Header';
+import { QuantumDashboard } from './components/QuantumDashboard';
+import { NetworkMonitor } from './components/NetworkMonitor';
+import { UserSignup } from './components/UserSignup';
+import { SecurityAnalytics } from './components/SecurityAnalytics';
+import { MainframeMonitor } from './components/MainframeMonitor';
+import { CloudflareMonitor } from './components/CloudflareMonitor';
+import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
+import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
+import { UserProfile } from './components/UserProfile';
+import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
+import { LoginPage } from './components/auth/LoginPage';
+import { SignupPage } from './components/auth/SignupPage';
+import { PricingPage } from './components/PricingPage';
+import { SuccessPage } from './components/SuccessPage';
+import { useAuth } from './hooks/useAuth';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-export const PricingPage: React.FC = () => {
-  const { user } = useAuth();
-  const { subscription, isActive } = useSubscription();
-  const [loading, setLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
 
-  const handleSubscribe = async (priceId: string) => {
-    if (!user) {
-      setError('Please sign in to subscribe');
-      return;
-    }
+const Dashboard: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('analytics');
 
-    setLoading(priceId);
-    setError(null);
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setError('Authentication required');
-        return;
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          price_id: priceId,
-          success_url: `${window.location.origin}/success`,
-          cancel_url: `${window.location.origin}/pricing`,
-          mode: 'subscription',
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      console.error('Checkout error:', error);
-      setError(error.message || 'Failed to start checkout process');
-    } finally {
-      setLoading(null);
-    }
-  };
+  const tabs = [
+    { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
+    { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
+    { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
+    { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
+    { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
+    { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
+    { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 py-12">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-4">
-            Choose Your Security Plan
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Upgrade to premium quantum encryption and unlock advanced security features
-          </p>
-        </div>
-
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-8 max-w-md mx-auto p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center space-x-3"
-          >
-            <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
-            <p className="text-red-400 text-sm">{error}</p>
-          </motion.div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Free Plan */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-600/20 p-8"
-          >
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-white mb-2">Free Plan</h3>
-              <div className="text-4xl font-bold text-gray-400 mb-4">$0</div>
-              <p className="text-gray-400">Perfect for getting started</p>
-            </div>
-
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-center space-x-3">
-                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-gray-300">Basic network monitoring</span>
-              </li>
-              <li className="flex items-center space-x-3">
-                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-gray-300">10 quantum keys per day</span>
-              </li>
-              <li className="flex items-center space-x-3">
-                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-gray-300">Basic threat detection</span>
-              </li>
-              <li className="flex items-center space-x-3">
-                <Check className="h-5 w-5 text-green-400 flex-shrink-0" />
-                <span className="text-gray-300">Community support</span>
-              </li>
-            </ul>
-
-            <button
-              disabled
-              className="w-full py-3 bg-gray-600 text-gray-400 rounded-lg cursor-not-allowed font-medium"
-            >
-              Current Plan
-            </button>
-          </motion.div>
-
-          {/* Premium Plan */}
-          {STRIPE_PRODUCTS.map((product, index) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.1 }}
-              className="bg-gradient-to-br from-purple-500/10 to-cyan-500/10 backdrop-blur-sm rounded-xl border border-purple-500/30 p-8 relative overflow-hidden"
-            >
-              <div className="absolute top-4 right-4">
-                <div className="bg-gradient-to-r from-purple-500 to-cyan-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Popular
-                </div>
-              </div>
-
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">{product.name}</h3>
-                <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-4">
-                  ${product.price}
-                  <span className="text-lg text-gray-400">/month</span>
-                </div>
-                <p className="text-gray-400">{product.description}</p>
-              </div>
-
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">Advanced quantum encryption</span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">Unlimited quantum keys</span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">Real-time threat analysis</span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">Priority support</span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">API access</span>
-                </li>
-                <li className="flex items-center space-x-3">
-                  <Check className="h-5 w-5 text-purple-400 flex-shrink-0" />
-                  <span className="text-gray-300">Custom integrations</span>
-                </li>
-              </ul>
-
-              {isActive() && subscription?.price_id === product.priceId ? (
-                <div className="w-full py-3 bg-green-500/20 border border-green-500/30 text-green-400 rounded-lg text-center font-medium">
-                  <div className="flex items-center justify-center space-x-2">
-                    <Zap className="h-5 w-5" />
-                    <span>Active Subscription</span>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => handleSubscribe(product.priceId)}
-                  disabled={loading === product.priceId || !user}
-                  className="w-full py-3 bg-gradient-to-r from-purple-500 to-cyan-500 text-white rounded-lg hover:from-purple-600 hover:to-cyan-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                >
-                  {loading === product.priceId ? (
-                    'Processing...'
-                  ) : !user ? (
-                    'Sign In to Subscribe'
-                  ) : (
-                    'Upgrade Now'
-                  )}
-                </button>
-              )}
-            </motion.div>
-          ))}
-        </div>
-
-        {user && (
-          <div className="mt-12 text-center">
-            <p className="text-gray-400 text-sm">
-              All plans include a 30-day money-back guarantee. Cancel anytime.
-            </p>
-          </div>
-        )}
+    <main className="container mx-auto px-6 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Quantum Security Operations Center
+        </h1>
+        <p className="text-gray-400">
+          Advanced Web3 security platform with quantum encryption and real-time threat analysis
+        </p>
       </div>
+
+      <div className="mb-8">
+        <nav className="flex space-x-1 bg-gray-800/30 p-1 rounded-xl border border-gray-700/50">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-400 border border-cyan-500/30'
+                    : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700/50'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="font-medium text-sm sm:text-base">{tab.name}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum' && <QuantumDashboard />}
+        {activeTab === 'network' && <NetworkMonitor />}
+        {activeTab === 'mainframe' && <MainframeMonitor />}
+        {activeTab === 'cloudflare' && <CloudflareMonitor />}
+        {activeTab === 'testing' && <SecurityTestingDashboard />}
+        {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
+        {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
+      </motion.div>
+    </main>
+  );
+};
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20">
+      <Header />
+      {children}
+
+      <footer className="border-t border-gray-800 bg-gray-900/50 backdrop-blur-sm mt-12">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">QuantumSecure</h3>
+              <p className="text-gray-400 text-sm">
+                Next-generation Web3 security platform with quantum encryption and AI-powered threat detection.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Features</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• Quantum Key Distribution</li>
+                <li>• Real-time Network Monitoring</li>
+                <li>• Advanced Threat Analytics</li>
+                <li>• Web3 Wallet Integration</li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-4">Security</h3>
+              <ul className="space-y-2 text-sm text-gray-400">
+                <li>• End-to-end Encryption</li>
+                <li>• Zero-trust Architecture</li>
+                <li>• Cloudflare Protection</li>
+                <li>• SOC 2 Compliance</li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">
+            © 2025 QuantumSecure. All rights reserved. Built with quantum-grade security.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
+
+function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/20 to-purple-900/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/success" element={<SuccessPage />} />
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <AppLayout>
+              <PricingPage />
+            </AppLayout>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
