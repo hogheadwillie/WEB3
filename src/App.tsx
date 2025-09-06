@@ -11,17 +11,15 @@ import { CloudflareMonitor } from './components/CloudflareMonitor';
 import { SecurityTestingDashboard } from './components/SecurityTestingDashboard';
 import { IncidentReportingDashboard } from './components/IncidentReportingDashboard';
 import { UserProfile } from './components/UserProfile';
-import { UserProfile } from './components/UserProfile';
-import { UserProfile } from './components/UserProfile';
-import { UserProfile } from './components/UserProfile';
+import { EnterpriseSecurityDashboard } from './components/EnterpriseSecurityDashboard';
 import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield } from 'lucide-react';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
@@ -34,15 +32,11 @@ const Dashboard: React.FC = () => {
     { id: 'cloudflare' as TabType, name: 'Cloudflare', icon: Cloud },
     { id: 'testing' as TabType, name: 'Security Testing', icon: TestTube },
     { id: 'incidents' as TabType, name: 'Incident Reports', icon: AlertTriangle },
+    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: Shield },
     { id: 'signup' as TabType, name: 'User Registration', icon: UserPlus },
-    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
-    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
-    { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
     { id: 'profile' as TabType, name: 'Profile', icon: UserPlus },
   ];
 
-        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
-    { id: 'enterprise' as TabType, name: 'Enterprise Security', icon: BarChart3 },
   return (
     <main className="container mx-auto px-6 py-8">
       <div className="mb-8">
@@ -89,7 +83,9 @@ const Dashboard: React.FC = () => {
         {activeTab === 'cloudflare' && <CloudflareMonitor />}
         {activeTab === 'testing' && <SecurityTestingDashboard />}
         {activeTab === 'incidents' && <IncidentReportingDashboard />}
+        {activeTab === 'enterprise' && <EnterpriseSecurityDashboard />}
         {activeTab === 'signup' && <UserSignup />}
+        {activeTab === 'profile' && <UserProfile />}
       </motion.div>
     </main>
   );
