@@ -326,4 +326,14 @@ export interface PostQuantumCrypto {
   standardization_status: 'draft' | 'candidate' | 'standard';
   quantum_resistance: boolean;
 }
-</parameter>
+
+// Import SecurityFinding from main types
+export interface SecurityFinding {
+  id: string;
+  type: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  description: string;
+  recommendation: string;
+  cve?: string;
+  cvss?: number;
+}

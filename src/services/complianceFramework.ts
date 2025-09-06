@@ -263,4 +263,3 @@ export class ComplianceManager {
 }
 
 export const complianceManager = new ComplianceManager();
-</parameter>

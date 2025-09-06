@@ -161,4 +161,3 @@ export const siemIntegration = new SIEMIntegration(
     sourcetype: 'json'
   }
 );
-</parameter>
