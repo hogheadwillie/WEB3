@@ -18,18 +18,20 @@ import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
 import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity, Award } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity, Award, Layers } from 'lucide-react';
 import { PQCComplianceDashboard } from './components/PQCComplianceDashboard';
 import { QuantumThreatMonitor } from './components/QuantumThreatMonitor';
 import { DoDComplianceDashboard } from './components/DoDComplianceDashboard';
+import { QuantumInfrastructureDashboard } from './components/QuantumInfrastructureDashboard';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise' | 'pqc-compliance' | 'quantum-threats' | 'dod-compliance';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise' | 'pqc-compliance' | 'quantum-threats' | 'dod-compliance' | 'quantum-infrastructure';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
 
   const tabs = [
     { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'quantum-infrastructure' as TabType, name: 'Quantum Infrastructure', icon: Layers },
     { id: 'dod-compliance' as TabType, name: 'DoD Compliance', icon: Award },
     { id: 'pqc-compliance' as TabType, name: 'PQC Compliance', icon: Lock },
     { id: 'quantum-threats' as TabType, name: 'Quantum Threats', icon: Activity },
@@ -84,6 +86,7 @@ const Dashboard: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'quantum-infrastructure' && <QuantumInfrastructureDashboard />}
         {activeTab === 'dod-compliance' && <DoDComplianceDashboard />}
         {activeTab === 'pqc-compliance' && <PQCComplianceDashboard />}
         {activeTab === 'quantum-threats' && <QuantumThreatMonitor />}
