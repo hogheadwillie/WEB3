@@ -18,17 +18,19 @@ import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
 import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity, Award } from 'lucide-react';
 import { PQCComplianceDashboard } from './components/PQCComplianceDashboard';
 import { QuantumThreatMonitor } from './components/QuantumThreatMonitor';
+import { DoDComplianceDashboard } from './components/DoDComplianceDashboard';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise' | 'pqc-compliance' | 'quantum-threats';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise' | 'pqc-compliance' | 'quantum-threats' | 'dod-compliance';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
 
   const tabs = [
     { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'dod-compliance' as TabType, name: 'DoD Compliance', icon: Award },
     { id: 'pqc-compliance' as TabType, name: 'PQC Compliance', icon: Lock },
     { id: 'quantum-threats' as TabType, name: 'Quantum Threats', icon: Activity },
     { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
@@ -82,6 +84,7 @@ const Dashboard: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'dod-compliance' && <DoDComplianceDashboard />}
         {activeTab === 'pqc-compliance' && <PQCComplianceDashboard />}
         {activeTab === 'quantum-threats' && <QuantumThreatMonitor />}
         {activeTab === 'quantum' && <QuantumDashboard />}
