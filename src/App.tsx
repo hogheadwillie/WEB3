@@ -18,15 +18,19 @@ import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
 import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
-import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User } from 'lucide-react';
+import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity } from 'lucide-react';
+import { PQCComplianceDashboard } from './components/PQCComplianceDashboard';
+import { QuantumThreatMonitor } from './components/QuantumThreatMonitor';
 
-type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise';
+type TabType = 'analytics' | 'quantum' | 'network' | 'mainframe' | 'cloudflare' | 'testing' | 'incidents' | 'signup' | 'profile' | 'enterprise' | 'pqc-compliance' | 'quantum-threats';
 
 const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('analytics');
 
   const tabs = [
     { id: 'analytics' as TabType, name: 'Security Analytics', icon: BarChart3 },
+    { id: 'pqc-compliance' as TabType, name: 'PQC Compliance', icon: Lock },
+    { id: 'quantum-threats' as TabType, name: 'Quantum Threats', icon: Activity },
     { id: 'quantum' as TabType, name: 'Quantum Keys', icon: Key },
     { id: 'network' as TabType, name: 'Network Monitor', icon: Wifi },
     { id: 'mainframe' as TabType, name: 'IBM Z Series', icon: Server },
@@ -78,6 +82,8 @@ const Dashboard: React.FC = () => {
         transition={{ duration: 0.3 }}
       >
         {activeTab === 'analytics' && <SecurityAnalytics />}
+        {activeTab === 'pqc-compliance' && <PQCComplianceDashboard />}
+        {activeTab === 'quantum-threats' && <QuantumThreatMonitor />}
         {activeTab === 'quantum' && <QuantumDashboard />}
         {activeTab === 'network' && <NetworkMonitor />}
         {activeTab === 'mainframe' && <MainframeMonitor />}
