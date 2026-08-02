@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, User, LogOut, Menu, X } from 'lucide-react';
+import { Shield, User, LogOut, Menu, X, BookOpen, LifeBuoy } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 export const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -35,15 +36,15 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            <a href="/" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
+            <Link to="/" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
               Dashboard
-            </a>
-            <a href="/pricing" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
+            </Link>
+            <Link to="/pricing" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
               Pricing
-            </a>
-            <a href="#" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
+            </Link>
+            <Link to="/documentation" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
               Documentation
-            </a>
+            </Link>
             <a href="#" className="text-gray-300 hover:text-cyan-400 transition-colors duration-200">
               Support
             </a>
@@ -66,7 +67,7 @@ export const Header: React.FC = () => {
                     <User className="h-4 w-4 text-gray-300" />
                   </motion.button>
                   <motion.button
-                    onClick={logout}
+                    onClick={signOut}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="p-2 bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors duration-200"
@@ -112,28 +113,31 @@ export const Header: React.FC = () => {
             exit={{ opacity: 0, y: -20 }}
             className="md:hidden border-t border-gray-800 py-4 space-y-3"
           >
-            <a
-              href="/"
-              className="block px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             >
+              <Shield className="h-4 w-4" />
               Dashboard
-            </a>
-            <a
-              href="/pricing"
-              className="block px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+            </Link>
+            <Link
+              to="/pricing"
+              className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             >
               Pricing
-            </a>
-            <a
-              href="#"
-              className="block px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+            </Link>
+            <Link
+              to="/documentation"
+              className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             >
+              <BookOpen className="h-4 w-4" />
               Documentation
-            </a>
+            </Link>
             <a
               href="#"
-              className="block px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+              className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-cyan-400 hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
             >
+              <LifeBuoy className="h-4 w-4" />
               Support
             </a>
             {!user && (

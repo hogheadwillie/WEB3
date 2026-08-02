@@ -16,6 +16,7 @@ import { LoginPage } from './components/auth/LoginPage';
 import { SignupPage } from './components/auth/SignupPage';
 import { PricingPage } from './components/PricingPage';
 import { SuccessPage } from './components/SuccessPage';
+import { DocumentationPage } from './components/DocumentationPage';
 import { TwoFactorLogin } from './components/auth/TwoFactorLogin';
 import { useAuth } from './hooks/useAuth';
 import { BarChart3, Key, Wifi, UserPlus, Server, Cloud, TestTube, AlertTriangle, Shield, User, Lock, Activity, Award, Layers } from 'lucide-react';
@@ -177,6 +178,7 @@ function App() {
         <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
         <Route path="/signup" element={user ? <Navigate to="/" replace /> : <SignupPage />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/documentation" element={<AppLayout><DocumentationPage /></AppLayout>} />
         <Route
           path="/"
           element={
