@@ -25,6 +25,50 @@ export interface SecurityMetric {
   quantumEntropy: number;
 }
 
+export type AttackType =
+  | 'sql_injection'
+  | 'xss'
+  | 'ddos'
+  | 'port_scan'
+  | 'brute_force'
+  | 'malware_c2'
+  | 'data_exfiltration'
+  | 'phishing'
+  | 'privilege_escalation'
+  | 'zero_day'
+  | 'reconnaissance'
+  | 'normal';
+
+export interface ThreatEvent {
+  id: string;
+  timestamp: number;
+  attackType: AttackType;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  confidence: number;
+  sourceIp: string;
+  targetIp: string;
+  protocol: 'TCP' | 'UDP' | 'ICMP' | 'HTTP' | 'HTTPS';
+  description: string;
+  indicators: string[];
+  blocked: boolean;
+  mitreTactic?: string;
+  packetSize: number;
+}
+
+export interface ThreatAnalysisState {
+  events: ThreatEvent[];
+  stats: {
+    totalThreats: number;
+    blockedThreats: number;
+    bySeverity: Record<string, number>;
+    byAttackType: Record<string, number>;
+    averageConfidence: number;
+    threatsPerMinute: number;
+  };
+  topAttackers: { ip: string; count: number; lastSeen: number }[];
+  attackTrend: { timestamp: number; count: number; blocked: number }[];
+}
+
 export interface User {
   id: string;
   address?: string;
