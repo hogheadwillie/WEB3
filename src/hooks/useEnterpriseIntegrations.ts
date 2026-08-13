@@ -43,11 +43,6 @@ export const useEnterpriseIntegrations = () => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [metrics, setMetrics] = useState<any[]>([]);
 
-  // Initialize data
-  useEffect(() => {
-    initializeEnterpriseData();
-  }, []);
-
   const initializeEnterpriseData = useCallback(async () => {
     try {
       // Load vulnerability data
@@ -404,18 +399,26 @@ export const useEnterpriseIntegrations = () => {
 
     // Simulate playbook execution
     setTimeout(() => {
-      execution.status = 'completed';
-      execution.end_time = new Date().toISOString();
-      execution.actions_completed = execution.total_actions;
-      execution.logs.push(`Playbook ${playbook.name} completed successfully`);
+      const completedExecution = {
+        ...execution,
+        status: 'completed' as const,
+        end_time: new Date().toISOString(),
+        actions_completed: execution.total_actions,
+        logs: [...execution.logs, `Playbook ${playbook.name} completed successfully`]
+      };
       
       setPlaybookExecutions(prev => 
-        prev.map(e => e.id === execution.id ? execution : e)
+        prev.map(e => e.id === execution.id ? completedExecution : e)
       );
     }, 5000);
 
     return execution.id;
   }, [activePlaybooks]);
+
+  // Initialize data
+  useEffect(() => {
+    initializeEnterpriseData();
+  }, [initializeEnterpriseData]);
 
   return {
     // Vulnerability Management

@@ -167,7 +167,8 @@ function App() {
       <TwoFactorLogin
         onVerified={complete2FALogin}
         onCancel={cancel2FALogin}
-        userEmail={pendingUser.email || ''}
+        userEmail={pendingUser?.email || ''}
+        pendingUser={pendingUser}
       />
     );
   }

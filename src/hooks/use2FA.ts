@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
 import { supabase } from '../lib/supabase';
-import { useAuth } from './useAuth';
+import { User } from '@supabase/supabase-js';
 
 export interface TwoFactorSettings {
   id: string;
@@ -14,8 +14,20 @@ export interface TwoFactorSettings {
   updated_at: string;
 }
 
-export const use2FA = () => {
-  const { user } = useAuth();
+async function hashBackupCode(code: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(code);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function hashBackupCodes(codes: string[]): Promise<string[]> {
+  return Promise.all(codes.map(hashBackupCode));
+}
+
+export const use2FA = (user: User | null) => {
   const [settings, setSettings] = useState<TwoFactorSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -35,9 +47,7 @@ export const use2FA = () => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (error) throw error;
 
       setSettings(data);
     } catch (error) {
@@ -53,13 +63,12 @@ export const use2FA = () => {
     return newSecret;
   }, []);
 
-  const generateQRCode = useCallback(async (secret: string) => {
-    if (!user) return '';
+  const generateQRCode = useCallback(async (secretToUse: string) => {
+    if (!user?.email) return '';
 
     const serviceName = 'QuantumSecure';
-    const accountName = user.email;
-    const otpauth = authenticator.keyuri(accountName, serviceName, secret);
-    
+    const otpauth = authenticator.keyuri(user.email, serviceName, secretToUse);
+
     try {
       const qrCodeDataUrl = await QRCode.toDataURL(otpauth);
       setQrCodeUrl(qrCodeDataUrl);
@@ -71,17 +80,22 @@ export const use2FA = () => {
   }, [user]);
 
   const generateBackupCodes = useCallback(() => {
-    const codes = [];
+    const codes: string[] = [];
     for (let i = 0; i < 10; i++) {
-      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+      const bytes = new Uint8Array(8);
+      crypto.getRandomValues(bytes);
+      const code = Array.from(bytes)
+        .map(b => b.toString(36).padStart(2, '0'))
+        .join('')
+        .substring(0, 8)
+        .toUpperCase();
       codes.push(code);
     }
-    setBackupCodes(codes);
     return codes;
   }, []);
 
-  const verifyToken = useCallback((token: string, secret?: string) => {
-    const secretToUse = secret || settings?.secret;
+  const verifyToken = useCallback((token: string, secretOverride?: string) => {
+    const secretToUse = secretOverride || settings?.secret;
     if (!secretToUse) return false;
 
     try {
@@ -96,19 +110,24 @@ export const use2FA = () => {
     if (!settings || !user) return false;
 
     const normalizedCode = code.toUpperCase().trim();
-    const isValidCode = settings.backup_codes.includes(normalizedCode);
+    const hashedInput = await hashBackupCode(normalizedCode);
+    const isValidCode = settings.backup_codes.includes(hashedInput);
 
     if (isValidCode) {
-      // Remove the used backup code
-      const updatedCodes = settings.backup_codes.filter(c => c !== normalizedCode);
-      
       try {
+        const updatedCodes = settings.backup_codes.filter(c => c !== hashedInput);
         const { error } = await supabase
           .from('user_2fa_settings')
           .update({ backup_codes: updatedCodes })
-          .eq('user_id', user.id);
+          .eq('user_id', user.id)
+          .eq('backup_codes', settings.backup_codes);
 
-        if (error) throw error;
+        if (error) {
+          if (error.code === 'PGRST116' || error.code === '23505') {
+            return false;
+          }
+          throw error;
+        }
 
         setSettings(prev => prev ? { ...prev, backup_codes: updatedCodes } : null);
         return true;
@@ -121,25 +140,25 @@ export const use2FA = () => {
     return false;
   }, [settings, user]);
 
-  const enable2FA = useCallback(async (secret: string, token: string) => {
+  const enable2FA = useCallback(async (secretToUse: string, token: string) => {
     if (!user) throw new Error('User not authenticated');
 
-    // Verify the token first
-    if (!authenticator.verify({ token, secret })) {
+    if (!authenticator.verify({ token, secret: secretToUse })) {
       throw new Error('Invalid verification code');
     }
 
     const codes = generateBackupCodes();
+    const hashedCodes = await hashBackupCodes(codes);
 
     try {
       const { data, error } = await supabase
         .from('user_2fa_settings')
         .upsert({
           user_id: user.id,
-          secret,
+          secret: secretToUse,
           is_enabled: true,
-          backup_codes: codes
-        })
+          backup_codes: hashedCodes
+        }, { onConflict: 'user_id' })
         .select()
         .single();
 
@@ -179,11 +198,12 @@ export const use2FA = () => {
     if (!user || !settings) throw new Error('2FA not enabled');
 
     const newCodes = generateBackupCodes();
+    const hashedCodes = await hashBackupCodes(newCodes);
 
     try {
       const { data, error } = await supabase
         .from('user_2fa_settings')
-        .update({ backup_codes: newCodes })
+        .update({ backup_codes: hashedCodes })
         .eq('user_id', user.id)
         .select()
         .single();

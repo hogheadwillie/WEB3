@@ -13,15 +13,13 @@ export class SIEMIntegration {
     if (!this.elasticConfig) return false;
 
     try {
-      // Simulate Elasticsearch integration
       console.log('Sending to Elasticsearch:', event);
-      
-      // In a real implementation, you would use @elastic/elasticsearch client
+
       const response = await fetch(`${this.elasticConfig.node}/security-events/_doc`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.elasticConfig.auth ? 
+          'Authorization': this.elasticConfig.auth ?
             `Basic ${btoa(`${this.elasticConfig.auth.username}:${this.elasticConfig.auth.password}`)}` : ''
         },
         body: JSON.stringify({
@@ -31,7 +29,8 @@ export class SIEMIntegration {
           category: event.category,
           message: event.message,
           raw_data: event.raw_data
-        })
+        }),
+        signal: AbortSignal.timeout(10000),
       });
 
       return response.ok;
@@ -45,12 +44,11 @@ export class SIEMIntegration {
     if (!this.splunkConfig) return false;
 
     try {
-      // Simulate Splunk HEC integration
       console.log('Sending to Splunk:', event);
 
       const splunkEvent = {
         time: Math.floor(event.timestamp / 1000),
-        host: window.location.hostname,
+        host: typeof window !== 'undefined' ? window.location.hostname : 'server',
         source: this.splunkConfig.source,
         sourcetype: this.splunkConfig.sourcetype,
         index: this.splunkConfig.index,
@@ -68,7 +66,8 @@ export class SIEMIntegration {
           'Authorization': `Splunk ${this.splunkConfig.token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(splunkEvent)
+        body: JSON.stringify(splunkEvent),
+        signal: AbortSignal.timeout(10000),
       });
 
       return response.ok;
@@ -106,10 +105,11 @@ export class SIEMIntegration {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': this.elasticConfig.auth ? 
+          'Authorization': this.elasticConfig.auth ?
             `Basic ${btoa(`${this.elasticConfig.auth.username}:${this.elasticConfig.auth.password}`)}` : ''
         },
-        body: JSON.stringify(searchQuery)
+        body: JSON.stringify(searchQuery),
+        signal: AbortSignal.timeout(10000),
       });
 
       const data = await response.json();
@@ -140,24 +140,4 @@ export class SIEMIntegration {
   }
 }
 
-export const siemIntegration = new SIEMIntegration(
-  // Elasticsearch config (would come from environment variables)
-  {
-    node: 'https://localhost:9200',
-    auth: {
-      username: 'elastic',
-      password: 'changeme'
-    },
-    ssl: {
-      rejectUnauthorized: false
-    }
-  },
-  // Splunk config (would come from environment variables)
-  {
-    host: 'https://localhost:8088',
-    token: 'your-hec-token',
-    index: 'security',
-    source: 'quantumsecure',
-    sourcetype: 'json'
-  }
-);
+export const siemIntegration = new SIEMIntegration();

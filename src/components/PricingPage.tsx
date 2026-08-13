@@ -1,33 +1,43 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Zap, Shield, Star, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useSubscription } from '../hooks/useSubscription';
+import { supabase } from '../lib/supabase';
+import { STRIPE_PRODUCTS } from '../stripe-config';
 
 export const PricingPage: React.FC = () => {
   const { user } = useAuth();
   const { isActive } = useSubscription();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  const premiumProduct = STRIPE_PRODUCTS.find(p => p.mode === 'subscription');
 
   const handleUpgrade = async () => {
     if (!user) {
-      // Redirect to signup if not authenticated
-      window.location.href = '/signup';
+      navigate('/signup');
       return;
     }
 
     setIsLoading(true);
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/login');
+        return;
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          price_id: 'price_1S1XvP3Q3A8giusRTENwkc12',
+          price_id: premiumProduct?.priceId,
           success_url: `${window.location.origin}/success`,
           cancel_url: `${window.location.origin}/pricing`,
           mode: 'subscription'

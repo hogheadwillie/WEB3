@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 interface InfrastructureLayer {
@@ -98,6 +98,112 @@ export const useQuantumInfrastructure = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadInfrastructureLayers = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('infrastructure_layers')
+      .select('*')
+      .order('layer_level', { ascending: true });
+
+    if (error) {
+      console.error('Error loading infrastructure layers:', error);
+    } else {
+      setInfrastructureLayers(data || []);
+    }
+  }, []);
+
+  const loadQuantumThreats = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('quantum_threats')
+      .select('*')
+      .order('severity', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error loading quantum threats:', error);
+    } else {
+      setQuantumThreats(data || []);
+    }
+  }, []);
+
+  const loadPQCAlgorithms = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('pqc_algorithms')
+      .select('*')
+      .order('nist_status', { ascending: false });
+
+    if (error) {
+      console.error('Error loading PQC algorithms:', error);
+    } else {
+      setPqcAlgorithms(data || []);
+    }
+  }, []);
+
+  const loadVulnerabilities = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('vulnerability_assessments')
+      .select('*')
+      .order('cvss_score', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error loading vulnerabilities:', error);
+    } else {
+      setVulnerabilities(data || []);
+    }
+  }, []);
+
+  const loadComplianceFrameworks = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('quantum_compliance_frameworks')
+      .select('*')
+      .order('compliance_score', { ascending: false });
+
+    if (error) {
+      console.error('Error loading compliance frameworks:', error);
+    } else {
+      setComplianceFrameworks(data || []);
+    }
+  }, []);
+
+  const loadThreatIntelligence = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('threat_intelligence')
+      .select('*')
+      .order('last_seen', { ascending: false })
+      .limit(50);
+
+    if (error) {
+      console.error('Error loading threat intelligence:', error);
+    } else {
+      setThreatIntelligence(data || []);
+    }
+  }, []);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      await Promise.all([
+        loadInfrastructureLayers(),
+        loadQuantumThreats(),
+        loadPQCAlgorithms(),
+        loadVulnerabilities(),
+        loadComplianceFrameworks(),
+        loadThreatIntelligence()
+      ]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  }, [
+    loadInfrastructureLayers,
+    loadQuantumThreats,
+    loadPQCAlgorithms,
+    loadVulnerabilities,
+    loadComplianceFrameworks,
+    loadThreatIntelligence
+  ]);
+
   useEffect(() => {
     loadData();
 
@@ -127,106 +233,7 @@ export const useQuantumInfrastructure = () => {
       threatsSubscription.unsubscribe();
       pqcSubscription.unsubscribe();
     };
-  }, []);
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([
-        loadInfrastructureLayers(),
-        loadQuantumThreats(),
-        loadPQCAlgorithms(),
-        loadVulnerabilities(),
-        loadComplianceFrameworks(),
-        loadThreatIntelligence()
-      ]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadInfrastructureLayers = async () => {
-    const { data, error } = await supabase
-      .from('infrastructure_layers')
-      .select('*')
-      .order('layer_level', { ascending: true });
-
-    if (error) {
-      console.error('Error loading infrastructure layers:', error);
-    } else {
-      setInfrastructureLayers(data || []);
-    }
-  };
-
-  const loadQuantumThreats = async () => {
-    const { data, error } = await supabase
-      .from('quantum_threats')
-      .select('*')
-      .order('severity', { ascending: false })
-      .limit(50);
-
-    if (error) {
-      console.error('Error loading quantum threats:', error);
-    } else {
-      setQuantumThreats(data || []);
-    }
-  };
-
-  const loadPQCAlgorithms = async () => {
-    const { data, error } = await supabase
-      .from('pqc_algorithms')
-      .select('*')
-      .order('nist_status', { ascending: false });
-
-    if (error) {
-      console.error('Error loading PQC algorithms:', error);
-    } else {
-      setPqcAlgorithms(data || []);
-    }
-  };
-
-  const loadVulnerabilities = async () => {
-    const { data, error } = await supabase
-      .from('vulnerability_assessments')
-      .select('*')
-      .order('cvss_score', { ascending: false })
-      .limit(50);
-
-    if (error) {
-      console.error('Error loading vulnerabilities:', error);
-    } else {
-      setVulnerabilities(data || []);
-    }
-  };
-
-  const loadComplianceFrameworks = async () => {
-    const { data, error } = await supabase
-      .from('quantum_compliance_frameworks')
-      .select('*')
-      .order('compliance_score', { ascending: false });
-
-    if (error) {
-      console.error('Error loading compliance frameworks:', error);
-    } else {
-      setComplianceFrameworks(data || []);
-    }
-  };
-
-  const loadThreatIntelligence = async () => {
-    const { data, error } = await supabase
-      .from('threat_intelligence')
-      .select('*')
-      .order('last_seen', { ascending: false })
-      .limit(50);
-
-    if (error) {
-      console.error('Error loading threat intelligence:', error);
-    } else {
-      setThreatIntelligence(data || []);
-    }
-  };
+  }, [loadData, loadInfrastructureLayers, loadQuantumThreats, loadPQCAlgorithms]);
 
   return {
     infrastructureLayers,

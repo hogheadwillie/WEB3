@@ -1,5 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { SecurityTest, SecurityFinding, StressTestMetrics, VulnerabilityReport } from '../types';
+
+function generateId(): string {
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map(b => b.toString(36).padStart(2, '0')).join('');
+}
 
 export const useSecurityTesting = () => {
   const [activeTests, setActiveTests] = useState<SecurityTest[]>([]);
@@ -7,48 +13,22 @@ export const useSecurityTesting = () => {
   const [vulnerabilityReport, setVulnerabilityReport] = useState<VulnerabilityReport | null>(null);
   const [isStressTesting, setIsStressTesting] = useState(false);
   const [testResults, setTestResults] = useState<SecurityTest[]>([]);
+  const intervalsRef = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
   const generateSecurityFinding = useCallback((): SecurityFinding => {
     const findings = [
-      {
-        type: 'SQL Injection',
-        description: 'Potential SQL injection vulnerability in login form',
-        recommendation: 'Use parameterized queries and input validation',
-        cve: 'CVE-2023-1234',
-        cvss: 8.5
-      },
-      {
-        type: 'XSS Vulnerability',
-        description: 'Cross-site scripting vulnerability in user input fields',
-        recommendation: 'Implement proper input sanitization and CSP headers',
-        cve: 'CVE-2023-5678',
-        cvss: 6.1
-      },
-      {
-        type: 'Weak Authentication',
-        description: 'Password policy does not meet security standards',
-        recommendation: 'Implement stronger password requirements and MFA',
-        cvss: 5.3
-      },
-      {
-        type: 'Insecure Headers',
-        description: 'Missing security headers in HTTP responses',
-        recommendation: 'Add X-Frame-Options, X-XSS-Protection, and CSP headers',
-        cvss: 4.3
-      },
-      {
-        type: 'Outdated Dependencies',
-        description: 'Application uses outdated libraries with known vulnerabilities',
-        recommendation: 'Update all dependencies to latest secure versions',
-        cvss: 7.2
-      }
+      { type: 'SQL Injection', description: 'Potential SQL injection vulnerability in login form', recommendation: 'Use parameterized queries and input validation', cve: 'CVE-2023-1234', cvss: 8.5 },
+      { type: 'XSS Vulnerability', description: 'Cross-site scripting vulnerability in user input fields', recommendation: 'Implement proper input sanitization and CSP headers', cve: 'CVE-2023-5678', cvss: 6.1 },
+      { type: 'Weak Authentication', description: 'Password policy does not meet security standards', recommendation: 'Implement stronger password requirements and MFA', cvss: 5.3 },
+      { type: 'Insecure Headers', description: 'Missing security headers in HTTP responses', recommendation: 'Add X-Frame-Options, X-XSS-Protection, and CSP headers', cvss: 4.3 },
+      { type: 'Outdated Dependencies', description: 'Application uses outdated libraries with known vulnerabilities', recommendation: 'Update all dependencies to latest secure versions', cvss: 7.2 }
     ];
 
     const finding = findings[Math.floor(Math.random() * findings.length)];
     const severities: SecurityFinding['severity'][] = ['low', 'medium', 'high', 'critical'];
-    
+
     return {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       type: finding.type,
       severity: severities[Math.floor(Math.random() * severities.length)],
       description: finding.description,
@@ -68,8 +48,9 @@ export const useSecurityTesting = () => {
       xss: 'XSS Vulnerability Test'
     };
 
+    const testId = generateId();
     const newTest: SecurityTest = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: testId,
       name: testNames[testType],
       type: testType,
       status: 'running',
@@ -83,48 +64,42 @@ export const useSecurityTesting = () => {
 
     setActiveTests(prev => [...prev, newTest]);
 
-    // Simulate test execution
     const interval = setInterval(() => {
-      setActiveTests(prev => prev.map(test => {
-        if (test.id === newTest.id) {
-          const newProgress = Math.min(test.progress + Math.random() * 15, 100);
-          const newFindings = [...test.findings];
-          
-          // Add findings during test
-          if (Math.random() > 0.7 && newFindings.length < 5) {
-            newFindings.push(generateSecurityFinding());
-          }
+      setActiveTests(prev => {
+        const test = prev.find(t => t.id === testId);
+        if (!test) return prev;
 
-          const isComplete = newProgress >= 100;
-          
-          if (isComplete) {
-            clearInterval(interval);
-            setTestResults(prev => [...prev, {
-              ...test,
-              status: 'completed',
-              progress: 100,
-              duration: Date.now() - test.startTime,
-              findings: newFindings,
-              severity: newFindings.some(f => f.severity === 'critical') ? 'critical' :
-                       newFindings.some(f => f.severity === 'high') ? 'high' : 'medium'
-            }]);
-            
-            setActiveTests(prev => prev.filter(t => t.id !== test.id));
-          }
+        const newProgress = Math.min(test.progress + Math.random() * 15, 100);
+        const newFindings = [...test.findings];
 
-          return {
-            ...test,
-            progress: newProgress,
-            duration: Date.now() - test.startTime,
-            findings: newFindings,
-            status: isComplete ? 'completed' : 'running'
-          };
+        if (Math.random() > 0.7 && newFindings.length < 5) {
+          newFindings.push(generateSecurityFinding());
         }
-        return test;
-      }));
+
+        const isComplete = newProgress >= 100;
+        const updatedTest: SecurityTest = {
+          ...test,
+          progress: newProgress,
+          duration: Date.now() - test.startTime,
+          findings: newFindings,
+          status: isComplete ? 'completed' : 'running',
+          severity: newFindings.some(f => f.severity === 'critical') ? 'critical' :
+                    newFindings.some(f => f.severity === 'high') ? 'high' : 'medium'
+        };
+
+        if (isComplete) {
+          clearInterval(interval);
+          intervalsRef.current.delete(testId);
+          setTestResults(prevResults => [...prevResults, { ...updatedTest, progress: 100 }]);
+          return prev.filter(t => t.id !== testId);
+        }
+
+        return prev.map(t => t.id === testId ? updatedTest : t);
+      });
     }, 1000);
 
-    return newTest.id;
+    intervalsRef.current.set(testId, interval);
+    return testId;
   }, [generateSecurityFinding]);
 
   const startStressTest = useCallback(() => {
@@ -142,11 +117,10 @@ export const useSecurityTesting = () => {
     const mediumCount = Math.floor(Math.random() * 15) + 5;
     const lowCount = Math.floor(Math.random() * 20) + 10;
     const totalVulnerabilities = criticalCount + highCount + mediumCount + lowCount;
-    
     const riskScore = Math.min(100, (criticalCount * 10 + highCount * 7 + mediumCount * 4 + lowCount * 1));
-    
+
     const report: VulnerabilityReport = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       timestamp: Date.now(),
       totalVulnerabilities,
       criticalCount,
@@ -160,7 +134,6 @@ export const useSecurityTesting = () => {
     setVulnerabilityReport(report);
   }, []);
 
-  // Generate stress test metrics
   useEffect(() => {
     if (isStressTesting) {
       const interval = setInterval(() => {
@@ -182,10 +155,16 @@ export const useSecurityTesting = () => {
     }
   }, [isStressTesting]);
 
-  // Generate initial vulnerability report
   useEffect(() => {
     generateVulnerabilityReport();
   }, [generateVulnerabilityReport]);
+
+  useEffect(() => {
+    return () => {
+      intervalsRef.current.forEach(interval => clearInterval(interval));
+      intervalsRef.current.clear();
+    };
+  }, []);
 
   return {
     activeTests,

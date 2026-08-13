@@ -39,8 +39,9 @@ export const TwoFactorLogin: React.FC<TwoFactorLoginProps> = ({ onVerified, onCa
       }
 
       if (isValid) {
-        onVerified();
+        await onVerified();
       }
+
     } catch (err: any) {
       setError(err.message || 'Verification failed');
     } finally {

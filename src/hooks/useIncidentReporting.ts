@@ -60,30 +60,25 @@ export const useIncidentReporting = () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data: commentData, error } = await supabase
         .from('incident_comments')
-        .select(`
-          *,
-          user:user_id (
-            email
-          )
-        `)
+        .select('*')
         .eq('incident_id', incidentId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      const commentsWithUserInfo = data?.map(comment => ({
+      const commentsWithUserInfo = (commentData || []).map((comment: any) => ({
         ...comment,
-        user_email: comment.user?.email || 'Unknown User'
-      })) || [];
+        user_email: 'Current User'
+      }));
 
       setComments(prev => ({
         ...prev,
         [incidentId]: commentsWithUserInfo
       }));
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
     }
   }, [user]);
 
@@ -104,8 +99,9 @@ export const useIncidentReporting = () => {
 
       await fetchIncidents();
       return data;
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(msg);
       throw err;
     }
   }, [user, fetchIncidents]);
@@ -113,11 +109,12 @@ export const useIncidentReporting = () => {
   const updateIncident = useCallback(async (incidentId: string, updates: Partial<SecurityIncident>) => {
     if (!user) throw new Error('User not authenticated');
 
+    const { id: _id, created_at: _created, updated_at: _updated, reported_by: _reported, ...safeUpdates } = updates;
+
     try {
-      const updateData: any = { ...updates };
-      
-      // Set resolved_at when status changes to resolved
-      if (updates.status === 'resolved' && !updates.resolved_at) {
+      const updateData: Record<string, unknown> = { ...safeUpdates };
+
+      if (safeUpdates.status === 'resolved' && !safeUpdates.resolved_at) {
         updateData.resolved_at = new Date().toISOString();
       }
 
@@ -129,8 +126,9 @@ export const useIncidentReporting = () => {
       if (error) throw error;
 
       await fetchIncidents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(msg);
       throw err;
     }
   }, [user, fetchIncidents]);
@@ -151,8 +149,9 @@ export const useIncidentReporting = () => {
       if (error) throw error;
 
       await fetchComments(incidentId);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(msg);
       throw err;
     }
   }, [user, fetchComments]);
@@ -169,8 +168,9 @@ export const useIncidentReporting = () => {
       if (error) throw error;
 
       await fetchIncidents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(msg);
       throw err;
     }
   }, [user, fetchIncidents]);
@@ -187,8 +187,9 @@ export const useIncidentReporting = () => {
       if (error) throw error;
 
       await fetchIncidents();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unknown error occurred';
+      setError(msg);
       throw err;
     }
   }, [user, fetchIncidents]);
